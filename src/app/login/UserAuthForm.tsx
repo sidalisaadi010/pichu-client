@@ -12,20 +12,55 @@ import {
   GoogleIcon,
   UserAccountIcon,
 } from "hugeicons-react";
+import { useMutation } from "@tanstack/react-query";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
+async function signup({
+  email,password,userName
+}:{
+  email: string;
+  password: string;
+  userName: string;
+}){
+  const url = new URL(process.env.NEXT_PUBLIC_API_URL + "/auth/signup");
+  const response = await fetch(url.toString(), {
+    method: "POST",
+    credentials: "include",
+    
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email,password,userName }),
+  });
+  if (!response.ok) {
+    throw new Error("Signup failed");
   }
+  return response.json();
+}
+
+export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+  const {
+    mutate: signupMutation,
+    isPending: isLoading,
+
+  } = useMutation({
+    mutationFn: signup,
+    mutationKey: ["signup"],
+    onMutate: (data) => {
+      console.log("🚀 ~ UserAuthForm ~ data:", data)
+    }
+  })
+ 
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const email = form.email.value;
+    const password = form.password.value;
+    const userName = form.userName.value;
+    signupMutation({ email,password,userName });
+  };
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
@@ -42,6 +77,29 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
+              disabled={isLoading}
+            />
+
+            <Label className="sr-only" htmlFor="userName">
+              Username
+            </Label>
+            <Input
+              id="userName"
+              placeholder="username"
+              type="text"
+              autoCapitalize="none"
+              autoComplete="username"
+              autoCorrect="off"
+              disabled={isLoading}
+            />
+            <Label className="sr-only" htmlFor="password">
+              Password
+            </Label>
+            <Input
+              id="password"
+              placeholder="Password"
+              type="password"
+              autoComplete="current-password"
               disabled={isLoading}
             />
           </div>
