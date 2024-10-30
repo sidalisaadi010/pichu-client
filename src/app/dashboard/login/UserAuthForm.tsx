@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -13,53 +13,58 @@ import {
   UserAccountIcon,
 } from "hugeicons-react";
 import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { useAuth } from "@/stores/user-store";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-async function signup({
-  email,password,userName
-}:{
-  email: string;
-  password: string;
-  userName: string;
-}){
-  const url = new URL(process.env.NEXT_PUBLIC_API_URL + "/auth/signup");
-  const response = await fetch(url.toString(), {
-    method: "POST",
-    credentials: "include",
-    
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email,password,userName }),
-  });
-  if (!response.ok) {
-    throw new Error("Signup failed");
-  }
-  return response.json();
-}
-
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+  const { signup, login, user } = useAuth();
+  const router = useRouter();
+  const [isLoginMode, setIsLoginMode] = React.useState(true);
+
+  React.useEffect(() => {
+    if (user) {
+      router.push("/dashboard"); // Redirect to dashboard if user is already logged in
+    }
+  }, [user, router]);
+
   const {
     mutate: signupMutation,
-    isPending: isLoading,
-
+    isPending: isSignupLoading,
   } = useMutation({
     mutationFn: signup,
     mutationKey: ["signup"],
-    onMutate: (data) => {
-      console.log("🚀 ~ UserAuthForm ~ data:", data)
-    }
-  })
- 
+    onSuccess: () => {
+      router.push("/");
+    },
+  });
+
+  const {
+    mutate: loginMutation,
+    isPending: isLoginLoading,
+  } = useMutation({
+    mutationFn: login,
+    mutationKey: ["login"],
+    onSuccess: () => {
+      router.push("/");
+    },
+  });
+
+  const isLoading = isSignupLoading || isLoginLoading;
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const email = form.email.value;
     const password = form.password.value;
-    const userName = form.userName.value;
-    signupMutation({ email,password,userName });
+
+    if (isLoginMode) {
+      loginMutation({ email, password });
+    } else {
+      const userName = form.userName.value;
+      signupMutation({ email, password, userName });
+    }
   };
 
   return (
@@ -80,18 +85,23 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               disabled={isLoading}
             />
 
-            <Label className="sr-only" htmlFor="userName">
-              Username
-            </Label>
-            <Input
-              id="userName"
-              placeholder="username"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="username"
-              autoCorrect="off"
-              disabled={isLoading}
-            />
+            {!isLoginMode && (
+              <>
+                <Label className="sr-only" htmlFor="userName">
+                  Username
+                </Label>
+                <Input
+                  id="userName"
+                  placeholder="username"
+                  type="text"
+                  autoCapitalize="none"
+                  autoComplete="username"
+                  autoCorrect="off"
+                  disabled={isLoading}
+                />
+              </>
+            )}
+
             <Label className="sr-only" htmlFor="password">
               Password
             </Label>
@@ -107,7 +117,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             {isLoading && (
               <Loading02Icon className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Sign In with Email
+            {isLoginMode ? "Log In" : "Sign Up"} with Email
           </Button>
         </div>
       </form>
@@ -129,14 +139,24 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         )}{" "}
         Google
       </Button>
-      <Button variant="outline" type="button" disabled={isLoading}>
-        {isLoading ? (
-          <Loading02Icon className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <UserAccountIcon className="mr-2 h-4 w-4" />
-        )}{" "}
-        Username & Password
+      <Button 
+        variant="outline" 
+        type="button" 
+        disabled={isLoading}
+        onClick={() => setIsLoginMode(!isLoginMode)}
+      >
+        {isLoginMode ? "Switch to Sign Up" : "Switch to Login"}
       </Button>
+      <p className="text-center text-sm">
+        {isLoginMode ? "Don't have an account?" : "Already have an account?"}{" "}
+        <button
+          type="button"
+          className="underline"
+          onClick={() => setIsLoginMode(!isLoginMode)}
+        >
+          {isLoginMode ? "Sign up" : "Log in"}
+        </button>
+      </p>
     </div>
   );
 }
