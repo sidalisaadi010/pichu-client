@@ -94,26 +94,26 @@ const setupAxiosInterceptors = () => {
       // store retry in a header
 
       // If error is 401 and we haven't tried to refresh token yet
-      if (
-        error.response?.status === 401 &&
-        !originalRequest?.headers.get("_retry")
-      ) {
-        originalRequest?.headers.set("_retry", "true");
+      // if (
+      //   error.response?.status === 401 &&
+      //   !originalRequest?.headers.get("_retry")
+      // ) {
+      //   originalRequest?.headers.set("_retry", "true");
 
-        try {
-          // Refresh token
-          const response = await api.get<LoginAndSignUpResponse>(
-            "/auth/refresh"
-          );
-          const { accessToken } = response.data;
+      //   try {
+      //     // Refresh token
+      //     const response = await api.get<LoginAndSignUpResponse>(
+      //       "/auth/refresh"
+      //     );
+      //     const { accessToken } = response.data;
 
-          // Set new access token
-          useAuthStore.getState().setAccessToken(accessToken);
+      //     // Set new access token
+      //     useAuthStore.getState().setAccessToken(accessToken);
 
-          // Retry original request
-          return api(originalRequest!);
-        } catch (err) {}
-      }
+      //     // Retry original request
+      //     return api(originalRequest!);
+      //   } catch (err) {}
+      // }
     }
   );
 };
