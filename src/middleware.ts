@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
 
   // Define your root domain and development domain
   const DEVELOPMENT_DOMAIN = "localhost:3000";
-  const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "example.com";
+  const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN!;
 
   // Check if we're in development or production
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
   if (hostname === `www.${ROOT_DOMAIN}`) {
     const url = request.nextUrl.clone();
     url.hostname = ROOT_DOMAIN;
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL(url.toString()), { status: 301 });
   }
 
   // Handle dashboard subdomain
@@ -53,7 +53,7 @@ export function middleware(request: NextRequest) {
 
   // Rewrite the URL for subdomain handling
   const url = request.nextUrl.clone();
-  url.pathname = `/sites/${subdomain}${path}`;
+  url.pathname = `/${subdomain}${path}`;
 
   return NextResponse.rewrite(url);
 }
