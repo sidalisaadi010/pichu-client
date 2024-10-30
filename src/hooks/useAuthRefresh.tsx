@@ -34,7 +34,7 @@ export const useAuthRefresh = () => {
     // Set up periodic refresh
     const intervalId = setInterval(
       refreshTokenAndUser,
-      ACCESS_TOKEN_REFRESH_INTERVAL
+      1000 * ACCESS_TOKEN_REFRESH_INTERVAL
     );
 
     return () => clearInterval(intervalId);
