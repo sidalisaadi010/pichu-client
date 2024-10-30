@@ -95,15 +95,22 @@ const setupAxiosInterceptors = () => {
         originalRequest._retry = true;
 
         try {
-          // Try to refresh the token
-          const response = await api.get("/auth/refresh");
-          const { accessToken } = response.data;
+          // Check if the current request is the refresh token request
+          if (originalRequest.url !== "/auth/refresh") {
+            // Try to refresh the token
+            const response = await api.get("/auth/refresh");
+            const { accessToken } = response.data;
 
-          useAuthStore.getState().setAccessToken(accessToken);
+            useAuthStore.getState().setAccessToken(accessToken);
 
-          // Retry the original request
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          return api(originalRequest);
+            // Retry the original request with the new token
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return api(originalRequest);
+          } else {
+            // If the current request is the refresh token request, logout the user
+            useAuthStore.getState().logout();
+            return Promise.reject(error);
+          }
         } catch (refreshError) {
           // If refresh token fails, logout user
           useAuthStore.getState().logout();
