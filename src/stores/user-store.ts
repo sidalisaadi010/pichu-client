@@ -96,7 +96,7 @@ const setupAxiosInterceptors = () => {
 
         try {
           // Try to refresh the token
-          const response = await api.post("/refresh-token");
+          const response = await api.get("/auth/refresh");
           const { accessToken } = response.data;
 
           useAuthStore.getState().setAccessToken(accessToken);

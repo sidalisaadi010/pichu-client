@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
+  const url = new URL(request.nextUrl);
   const { hostname, pathname } = url;
 
   // Check if we're on localhost and skip subdomain logic
@@ -19,13 +19,12 @@ export function middleware(request: NextRequest) {
 
     // Special case for dashboard subdomain
     if (subdomain === "dashboard") {
-      url.pathname = `/dashboard${pathname}`;
-      return NextResponse.rewrite(url);
+      return NextResponse.rewrite(new URL("/dashboard", url.pathname));
     }
 
     // For other subdomains, rewrite the URL
-    url.pathname = `/${subdomain}${pathname}`;
-    return NextResponse.rewrite(url);
+
+    return NextResponse.rewrite(new URL(url.pathname, `/${subdomain}`));
   }
 
   // If no subdomain, continue to the requested page
