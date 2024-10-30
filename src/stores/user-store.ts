@@ -94,7 +94,10 @@ const setupAxiosInterceptors = () => {
       // store retry in a header
 
       // If error is 401 and we haven't tried to refresh token yet
-      if (error.response?.status === 401 && !originalRequest?.headers._retry) {
+      if (
+        error.response?.status === 401 &&
+        !originalRequest?.headers.get("_retry")
+      ) {
         originalRequest?.headers.set("_retry", "true");
 
         try {
