@@ -29,10 +29,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     }
   }, [user, router]);
 
-  const {
-    mutate: signupMutation,
-    isPending: isSignupLoading,
-  } = useMutation({
+  const { mutate: signupMutation, isPending: isSignupLoading } = useMutation({
     mutationFn: signup,
     mutationKey: ["signup"],
     onSuccess: () => {
@@ -40,10 +37,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
   });
 
-  const {
-    mutate: loginMutation,
-    isPending: isLoginLoading,
-  } = useMutation({
+  const { mutate: loginMutation, isPending: isLoginLoading } = useMutation({
     mutationFn: login,
     mutationKey: ["login"],
     onSuccess: () => {
@@ -63,7 +57,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       loginMutation({ email, password });
     } else {
       const userName = form.userName.value;
-      signupMutation({ email, password, userName });
+      signupMutation({ email, password, username: userName });
     }
   };
 
@@ -73,12 +67,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
-              Email
+              Email Or Username
             </Label>
             <Input
               id="email"
-              placeholder="name@example.com"
-              type="email"
+              placeholder="Email or Username"
+              type="text"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
@@ -87,11 +81,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
             {!isLoginMode && (
               <>
-                <Label className="sr-only" htmlFor="userName">
+                <Label className="sr-only" htmlFor="username">
                   Username
                 </Label>
                 <Input
-                  id="userName"
+                  id="username"
                   placeholder="username"
                   type="text"
                   autoCapitalize="none"
@@ -139,9 +133,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         )}{" "}
         Google
       </Button>
-      <Button 
-        variant="outline" 
-        type="button" 
+      <Button
+        variant="outline"
+        type="button"
         disabled={isLoading}
         onClick={() => setIsLoginMode(!isLoginMode)}
       >

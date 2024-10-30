@@ -27,7 +27,7 @@ type LoginCredentials = (
 
 type SignupCredentials = {
   email: string;
-  userName: string;
+  username: string;
   password: string;
 };
 

@@ -1,36 +1,20 @@
-import { Metadata } from "next"
-import Image from "next/image"
-import Link from "next/link"
+import { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { buttonVariants } from "@/components/ui/button"
-import { UserAuthForm } from "./UserAuthForm"
+import { buttonVariants } from "@/components/ui/button";
+import { UserAuthForm } from "./UserAuthForm";
 
 export const metadata: Metadata = {
   title: "Authentication",
   description: "Authentication forms built using the components.",
-}
+};
 
 export default function AuthenticationPage() {
   return (
     <>
-      <div className="md:hidden">
-        <Image
-          src="/examples/authentication-light.png"
-          width={1280}
-          height={843}
-          alt="Authentication"
-          className="block dark:hidden"
-        />
-        <Image
-          src="/examples/authentication-dark.png"
-          width={1280}
-          height={843}
-          alt="Authentication"
-          className="hidden dark:block"
-        />
-      </div>
       <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Link
           href="/examples/authentication"
@@ -102,5 +86,5 @@ export default function AuthenticationPage() {
         </div>
       </div>
     </>
-  )
+  );
 }
