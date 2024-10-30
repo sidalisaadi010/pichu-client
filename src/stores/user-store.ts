@@ -112,12 +112,7 @@ const setupAxiosInterceptors = () => {
 
           // Retry original request
           return api(originalRequest!);
-        } catch (err) {
-          // If refresh token fails, logout
-          useAuthStore.getState().logout();
-
-          return Promise.reject(error);
-        }
+        } catch (err) {}
       }
     }
   );
