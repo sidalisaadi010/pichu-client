@@ -2,44 +2,71 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const url = new URL(request.nextUrl);
-  const { hostname, pathname } = url;
+  // Get the hostname from the request headers
+  const hostname = request.headers.get("host") || "";
 
-  // Check if we're on localhost and skip subdomain logic
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
+  // Define your root domain and development domain
+  const DEVELOPMENT_DOMAIN = "localhost:3000";
+  const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "example.com";
+
+  // Check if we're in development or production
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const currentHost = isDevelopment
+    ? hostname.replace(`.${DEVELOPMENT_DOMAIN}`, "")
+    : hostname.replace(`.${ROOT_DOMAIN}`, "");
+
+  // Get the pathname from the request
+  const path = request.nextUrl.pathname;
+
+  // Handle root domain requests
+  if (hostname === ROOT_DOMAIN || hostname === DEVELOPMENT_DOMAIN) {
     return NextResponse.next();
   }
 
-  // Split the hostname to get the subdomain
-  const hostnameparts = hostname.split(".");
-  const isSubdomain = hostnameparts.length > 2;
-
-  if (isSubdomain) {
-    const subdomain = hostnameparts[0];
-
-    // Special case for dashboard subdomain
-    if (subdomain === "dashboard") {
-      return NextResponse.rewrite(new URL("/dashboard", url.pathname));
-    }
-
-    // For other subdomains, rewrite the URL
-
-    return NextResponse.rewrite(new URL(url.pathname, `/${subdomain}`));
+  // Special case for www - redirect to root domain
+  if (hostname === `www.${ROOT_DOMAIN}`) {
+    const url = request.nextUrl.clone();
+    url.hostname = ROOT_DOMAIN;
+    return NextResponse.redirect(url);
   }
 
-  // If no subdomain, continue to the requested page
-  return NextResponse.next();
+  // Handle dashboard subdomain
+  if (currentHost === "dashboard") {
+    const url = request.nextUrl.clone();
+    // Rewrite to the dashboard folder in app directory
+    url.pathname = `/dashboard${path}`;
+    return NextResponse.rewrite(url);
+  }
+
+  // Handle other subdomains
+  const subdomain = isDevelopment ? currentHost : hostname.split(".")[0];
+
+  // Skip rewrite for static files and api routes
+  if (
+    path.startsWith("/_next") ||
+    path.startsWith("/api") ||
+    path.startsWith("/static") ||
+    path.includes(".") // This covers files like favicon.ico, manifest.json, etc.
+  ) {
+    return NextResponse.next();
+  }
+
+  // Rewrite the URL for subdomain handling
+  const url = request.nextUrl.clone();
+  url.pathname = `/sites/${subdomain}${path}`;
+
+  return NextResponse.rewrite(url);
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * Match all paths except:
+     * 1. /api/ routes
+     * 2. /_next/ (Next.js internals)
+     * 3. /_static (inside /public)
+     * 4. all root files inside /public (e.g. /favicon.ico)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/|_next/|_static/|_vercel|[\\w-]+\\.\\w+).*)",
   ],
 };
