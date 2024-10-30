@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { api } from "@/lib/api";
 
 import * as jose from "jose";
+import { AxiosError } from "axios";
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
@@ -87,35 +88,13 @@ const setupAxiosInterceptors = () => {
   // Response interceptor
   api.interceptors.response.use(
     (response) => response,
-    async (error) => {
+    async (error: AxiosError) => {
       const originalRequest = error.config;
 
       // If error is 401 and we haven't tried to refresh token yet
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-
-        try {
-          // Check if the current request is the refresh token request
-          if (originalRequest.url !== "/auth/refresh") {
-            // Try to refresh the token
-            const response = await api.get("/auth/refresh");
-            const { accessToken } = response.data;
-
-            useAuthStore.getState().setAccessToken(accessToken);
-
-            // Retry the original request with the new token
-            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-            return api(originalRequest);
-          } else {
-            // If the current request is the refresh token request, logout the user
-            useAuthStore.getState().logout();
-            return Promise.reject(error);
-          }
-        } catch (refreshError) {
-          // If refresh token fails, logout user
-          useAuthStore.getState().logout();
-          return Promise.reject(refreshError);
-        }
+      if (error.response?.status === 401 && !originalRequest) {
+        useAuthStore.getState().logout();
+        return Promise.reject(error);
       }
 
       return Promise.reject(error);
