@@ -6,36 +6,21 @@ import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Loading02Icon,
-  GithubIcon,
-  GoogleIcon,
-  UserAccountIcon,
-} from "hugeicons-react";
+import { Github, Loader2, Mail, UserPlus } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { api } from "@/lib/api";
 import { useAuth } from "@/stores/user-store";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+export default function UserAuthForm({
+  className,
+  ...props
+}: UserAuthFormProps = {}) {
   const { signup, login, user } = useAuth();
   const router = useRouter();
-  const [isLoginMode, setIsLoginMode] = React.useState(true);
 
-  React.useEffect(() => {
-    if (user) {
-      router.push("/dashboard"); // Redirect to dashboard if user is already logged in
-    }
-  }, [user, router]);
-
-  const { mutate: signupMutation, isPending: isSignupLoading } = useMutation({
-    mutationFn: signup,
-    mutationKey: ["signup"],
-    onSuccess: () => {
-      router.push("/");
-    },
-  });
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isEmailOnly, setIsEmailOnly] = React.useState<boolean>(true);
 
   const { mutate: loginMutation, isPending: isLoginLoading } = useMutation({
     mutationFn: login,
@@ -45,20 +30,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
   });
 
-  const isLoading = isSignupLoading || isLoginLoading;
-
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const email = form.email.value;
     const password = form.password.value;
+  }
 
-    if (isLoginMode) {
-      loginMutation({ email, password });
-    } else {
-      const userName = form.userName.value;
-      signupMutation({ email, password, username: userName });
-    }
+  const toggleEmailMode = () => {
+    setIsEmailOnly(!isEmailOnly);
   };
 
   return (
@@ -67,51 +47,35 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
-              Email Or Username
+              Email
             </Label>
             <Input
               id="email"
-              placeholder="Email or Username"
-              type="text"
+              placeholder="name@example.com"
+              type="email"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
             />
-
-            {!isLoginMode && (
+            {!isEmailOnly && (
               <>
-                <Label className="sr-only" htmlFor="username">
-                  Username
+                <Label className="sr-only" htmlFor="password">
+                  Password
                 </Label>
                 <Input
-                  id="username"
-                  placeholder="username"
-                  type="text"
-                  autoCapitalize="none"
-                  autoComplete="username"
-                  autoCorrect="off"
+                  id="password"
+                  placeholder="Password"
+                  type="password"
+                  autoComplete="current-password"
                   disabled={isLoading}
                 />
               </>
             )}
-
-            <Label className="sr-only" htmlFor="password">
-              Password
-            </Label>
-            <Input
-              id="password"
-              placeholder="Password"
-              type="password"
-              autoComplete="current-password"
-              disabled={isLoading}
-            />
           </div>
           <Button disabled={isLoading}>
-            {isLoading && (
-              <Loading02Icon className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {isLoginMode ? "Log In" : "Sign Up"} with Email
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Sign In with {isEmailOnly ? "Email" : "Email & Password"}
           </Button>
         </div>
       </form>
@@ -125,32 +89,41 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </span>
         </div>
       </div>
-      <Button variant="outline" type="button" disabled={isLoading}>
-        {isLoading ? (
-          <Loading02Icon className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <GoogleIcon className="mr-2 h-4 w-4" />
-        )}{" "}
-        Google
-      </Button>
-      <Button
-        variant="outline"
-        type="button"
-        disabled={isLoading}
-        onClick={() => setIsLoginMode(!isLoginMode)}
-      >
-        {isLoginMode ? "Switch to Sign Up" : "Switch to Login"}
-      </Button>
-      <p className="text-center text-sm">
-        {isLoginMode ? "Don't have an account?" : "Already have an account?"}{" "}
-        <button
+      <div className="flex justify-center gap-2">
+        <Button
+          variant="outline"
           type="button"
-          className="underline"
-          onClick={() => setIsLoginMode(!isLoginMode)}
+          size="icon"
+          disabled={isLoading}
+          onClick={toggleEmailMode}
         >
-          {isLoginMode ? "Sign up" : "Log in"}
-        </button>
-      </p>
+          {isEmailOnly ? (
+            <UserPlus className="h-4 w-4" />
+          ) : (
+            <Mail className="h-4 w-4" />
+          )}
+          <span className="sr-only">
+            {isEmailOnly
+              ? "Switch to Email & Password"
+              : "Switch to Email Only"}
+          </span>
+        </Button>
+
+        <Button
+          variant="outline"
+          type="button"
+          size="icon"
+          disabled={isLoading}
+        >
+          <svg role="img" viewBox="0 0 24 24" className="h-4 w-4">
+            <path
+              fill="currentColor"
+              d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+            />
+          </svg>
+          <span className="sr-only">Continue with Google</span>
+        </Button>
+      </div>
     </div>
   );
 }

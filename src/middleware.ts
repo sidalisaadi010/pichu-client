@@ -25,9 +25,9 @@ export function middleware(request: NextRequest) {
 
   // Special case for www - redirect to root domain
   if (hostname === `www.${ROOT_DOMAIN}`) {
-    const url = request.nextUrl.clone();
-    url.hostname = ROOT_DOMAIN;
-    return NextResponse.redirect(new URL(url.toString()), { status: 301 });
+    return NextResponse.redirect(`https://${ROOT_DOMAIN}${path}`, {
+      status: 301,
+    });
   }
 
   // Handle dashboard subdomain

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
-import { UserAuthForm } from "./UserAuthForm";
+import UserAuthForm from "./UserAuthForm";
 
 export const metadata: Metadata = {
   title: "Authentication",

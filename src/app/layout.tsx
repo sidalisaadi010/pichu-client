@@ -2,6 +2,7 @@ import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
+import { PHProvider } from "@/providers/posthog.provider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={fontSans.className}>
       <head />
-      <body>{children}</body>
+      <PHProvider>
+        <body>{children}</body>
+      </PHProvider>
     </html>
   );
 }
