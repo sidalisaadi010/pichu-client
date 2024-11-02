@@ -11,6 +11,8 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
       person_profiles: "identified_only",
       capture_pageview: true, // Disable automatic pageview capture, as we capture manually
     });
+
+    posthog.capture("$pageview");
   }, []);
 
   return <PostHogProvider client={posthog}>{children}</PostHogProvider>;
