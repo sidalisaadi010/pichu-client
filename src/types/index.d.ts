@@ -43,6 +43,8 @@ interface AuthState {
   setAccessToken: (token: string | null) => void;
   setError: (error: string | null) => void;
   setLoading: (loading: boolean) => void;
+  loginWithEmail: (email: string) => Promise<void>;
+  authenticateEmail: (token: string) => Promise<void>;
 }
 
 interface LoginAndSignUpResponse {

@@ -16,7 +16,7 @@ export default function UserAuthForm({
   className,
   ...props
 }: UserAuthFormProps = {}) {
-  const { signup, login, user } = useAuth();
+  const { login, loginWithEmail, user } = useAuth();
   const router = useRouter();
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -30,11 +30,31 @@ export default function UserAuthForm({
     },
   });
 
+  const {
+    mutate: loginWithEmailMutation,
+    isPending: isLoginWithEmailLoading,
+    isSuccess,
+  } = useMutation({
+    mutationFn: loginWithEmail,
+    mutationKey: ["loginWithEmail"],
+    onSuccess: () => {},
+  });
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const email = form.email.value;
-    const password = form.password.value;
+    const password = form.password?.value;
+
+    setIsLoading(true);
+
+    if (isEmailOnly) {
+      await loginWithEmailMutation(email);
+    } else {
+      await loginMutation({ email, password });
+    }
+
+    setIsLoading(false);
   }
 
   const toggleEmailMode = () => {
@@ -43,42 +63,62 @@ export default function UserAuthForm({
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={onSubmit}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              disabled={isLoading}
-            />
-            {!isEmailOnly && (
-              <>
-                <Label className="sr-only" htmlFor="password">
-                  Password
+      {
+        // Show a message if the user is already logged in
+        user && (
+          <div className="bg-primary-foreground bg-opacity-10 p-4 rounded-md">
+            <p className="text-primary-foreground">
+              You are already logged in as {user.email}
+            </p>
+          </div>
+        )
+      }
+
+      {
+        // Show a message if the user has successfully logged in
+        isSuccess ? (
+          <div className="bg-primary-foreground bg-opacity-10 p-4 rounded-md">
+            <p className="">Check your email for a link to sign in</p>
+          </div>
+        ) : (
+          <form onSubmit={onSubmit}>
+            <div className="grid gap-2">
+              <div className="grid gap-1">
+                <Label className="sr-only" htmlFor="email">
+                  Email
                 </Label>
                 <Input
-                  id="password"
-                  placeholder="Password"
-                  type="password"
-                  autoComplete="current-password"
+                  id="email"
+                  placeholder="name@example.com"
+                  type="email"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  autoCorrect="off"
                   disabled={isLoading}
                 />
-              </>
-            )}
-          </div>
-          <Button disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sign In with {isEmailOnly ? "Email" : "Email & Password"}
-          </Button>
-        </div>
-      </form>
+                {!isEmailOnly && (
+                  <>
+                    <Label className="sr-only" htmlFor="password">
+                      Password
+                    </Label>
+                    <Input
+                      id="password"
+                      placeholder="Password"
+                      type="password"
+                      autoComplete="current-password"
+                      disabled={isLoading}
+                    />
+                  </>
+                )}
+              </div>
+              <Button disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Sign In with {isEmailOnly ? "Email" : "Email & Password"}
+              </Button>
+            </div>
+          </form>
+        )
+      }
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
