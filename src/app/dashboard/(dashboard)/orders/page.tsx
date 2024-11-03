@@ -103,7 +103,7 @@ const data: Payment[] = [
   },
 ];
 
-export type Payment = {
+type Payment = {
   id: string;
   amount: number;
   status: "pending" | "processing" | "success" | "failed";
@@ -112,7 +112,7 @@ export type Payment = {
   items: string[];
 };
 
-export const columns: ColumnDef<Payment>[] = [
+const columns: ColumnDef<Payment>[] = [
   {
     id: "select",
     header: ({ table }) => (
