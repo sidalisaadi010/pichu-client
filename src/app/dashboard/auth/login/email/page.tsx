@@ -28,6 +28,7 @@ export default function EmailLoginCallback({
 
       try {
         const response = await authenticateEmail(token);
+        router.push("/main");
       } catch (err) {
         setError(
           err instanceof Error
