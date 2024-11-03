@@ -145,7 +145,7 @@ const data: Product[] = [
   },
 ];
 
-export const columns: ColumnDef<Product>[] = [
+const columns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (
