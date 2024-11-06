@@ -3,6 +3,7 @@ import { Inter as FontSans } from "next/font/google";
 
 import { PHProvider } from "@/providers/posthog.provider";
 import PostHogPageView from "./PostHogPageView";
+import { Suspense } from "react";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -19,7 +20,9 @@ export default function RootLayout({
       <head />
       <PHProvider>
         <body>
-          <PostHogPageView />
+          <Suspense>
+            <PostHogPageView />
+          </Suspense>
           {children}
         </body>
       </PHProvider>
