@@ -1,7 +1,8 @@
 import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
 
-import { CSPostHogProvider } from "@/providers/posthog.provider";
+import { PHProvider } from "@/providers/posthog.provider";
+import PostHogPageView from "./PostHogPageView";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -16,9 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={fontSans.className}>
       <head />
-      <CSPostHogProvider>
-        <body>{children}</body>
-      </CSPostHogProvider>
+      <PHProvider>
+        <body>
+          <PostHogPageView />
+          {children}
+        </body>
+      </PHProvider>
     </html>
   );
 }
