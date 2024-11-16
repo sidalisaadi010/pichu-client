@@ -103,6 +103,7 @@ const config = {
   },
   plugins: [
     require("tailwindcss-animate"),
+    require("tailwindcss-hero-patterns"),
     addVariablesForColors,
     function ({ matchUtilities, theme }: any) {
       matchUtilities(

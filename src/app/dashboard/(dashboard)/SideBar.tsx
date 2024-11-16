@@ -31,6 +31,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import StoreSwitcher from "./StoreSwitcher";
 
 type MenuItem = {
   icon: React.ElementType;
@@ -128,6 +129,7 @@ export default function DynamicSidebar() {
     <Sidebar>
       <SidebarHeader>
         <h2 className="text-xl font-bold">E-commerce Dashboard</h2>
+        <StoreSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

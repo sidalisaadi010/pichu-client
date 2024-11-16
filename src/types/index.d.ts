@@ -51,3 +51,7 @@ interface LoginAndSignUpResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+interface GetStoresResponse {
+  stores: Store[];
+}
