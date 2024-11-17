@@ -1,10 +1,11 @@
 "use client";
 
-import { useAuth } from "@/stores/user-store";
+import { api, useAuth } from "@/stores/user-store";
 import { useRouter, useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import * as jose from "jose";
 
 export default function EmailLoginCallback({
   searchParams,
@@ -13,10 +14,35 @@ export default function EmailLoginCallback({
     [key: string]: string;
   };
 }) {
-  const { authenticateEmail, isLoading } = useAuth();
+  const { setAccessToken, setUser } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const token = useParams().token;
+
+  async function authenticateEmail(token: string) {
+    try {
+      setLoading(true);
+
+      const response = await api.post<LoginAndSignUpResponse>(
+        "/auth/callback",
+        {
+          token,
+        }
+      );
+      const user = jose.decodeJwt<User>(response.data.accessToken);
+      setAccessToken(response.data.accessToken);
+      setUser(user);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred during authentication"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     const authenticate = async () => {
@@ -40,7 +66,7 @@ export default function EmailLoginCallback({
     authenticate();
   }, [token, authenticateEmail, router]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />

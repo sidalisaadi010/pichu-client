@@ -91,31 +91,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ isLoading: false });
     }
   },
-  authenticateEmail: async (token: string) => {
-    try {
-      set({ isLoading: true, error: null });
-      const response = await api.post<LoginAndSignUpResponse>(
-        "/auth/callback",
-        {
-          token,
-        }
-      );
-      const user = jose.decodeJwt<User>(response.data.accessToken);
-      set({
-        user,
-        accessToken: response.data.accessToken,
-        error: null,
-      });
-    } catch (err) {
-      set({
-        error: err instanceof Error ? err.message : "Login failed",
-        user: null,
-        accessToken: null,
-      });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
 }));
 
 const setupAxiosInterceptors = () => {
@@ -178,7 +153,8 @@ export const useAuth = () => {
     logout,
     signup,
     loginWithEmail,
-    authenticateEmail,
+    setUser,
+    setAccessToken,
   } = useAuthStore();
 
   return {
@@ -190,6 +166,7 @@ export const useAuth = () => {
     logout,
     api, // Expose the pre-configured axios instance
     loginWithEmail,
-    authenticateEmail,
+    setUser,
+    setAccessToken,
   };
 };
