@@ -19,7 +19,7 @@ const StoresContext = createContext<ZustandStoreApi<StoresStore> | undefined>(
 
 type StoresProviderProps = PropsWithChildren & {
   initialStores: [];
-  selectedStore: Store | null;
+  selectedStore?: Store | null;
 };
 
 export default function StoresProvider({

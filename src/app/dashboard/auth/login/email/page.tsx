@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { api } from "@/lib/api";
 
 export default function EmailLoginCallback({
   searchParams,
