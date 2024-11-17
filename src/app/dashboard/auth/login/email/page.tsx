@@ -47,6 +47,8 @@ export default function EmailLoginCallback({
   useEffect(() => {
     const authenticate = async () => {
       if (!token) {
+        console.log(token);
+
         setError("No authentication token provided");
         return;
       }
