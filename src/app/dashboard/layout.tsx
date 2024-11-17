@@ -43,8 +43,9 @@ function App({ children }: props) {
 function NotLoggedIn({ children }: { children?: React.ReactNode }) {
   const path = usePathname();
   const isLoginPage = path === "/login";
+  const isPathStartsWithAuth = path.startsWith("/auth");
 
-  if (isLoginPage) {
+  if (isLoginPage || isPathStartsWithAuth) {
     return <>{children}</>;
   }
 
