@@ -35,8 +35,10 @@ function getQueryClient() {
   }
 }
 
-export default function Providers({ children }:{
-  children: React.ReactNode
+export default function QueryProvider({
+  children,
+}: {
+  children: React.ReactNode;
 }) {
   // NOTE: Avoid useState when initializing the query client if you don't
   //       have a suspense boundary between this and the code that may
@@ -45,8 +47,6 @@ export default function Providers({ children }:{
   const queryClient = getQueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }

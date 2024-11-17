@@ -1,5 +1,5 @@
-import { ACCESS_TOKEN_REFRESH_INTERVAL, api } from "@/lib/api";
-import { useAuthStore } from "@/stores/user-store";
+import { ACCESS_TOKEN_REFRESH_INTERVAL } from "@/lib/api";
+import { api, useAuthStore } from "@/stores/user-store";
 import { useEffect } from "react";
 import * as jose from "jose";
 

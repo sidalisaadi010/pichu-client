@@ -19,29 +19,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import useGetStores from "@/hooks/useGetStores";
+import useGetStores from "@/hooks/queries/useGetStores";
 import CreateStoreDialog from "./CreateStoreDialog";
-
-type Store = {
-  id: string;
-  name: string;
-  category: string;
-};
+import { useStores } from "@/providers/store.provider";
 
 export default function StoreSwitcher({ className }: { className?: string }) {
   const q = useGetStores();
-  console.log(q.data);
 
-  const stores: Store[] = [
-    { id: "1", name: "Electronics Hub", category: "Electronics" },
-    { id: "2", name: "Fashion Emporium", category: "Clothing" },
-    { id: "3", name: "Gourmet Delights", category: "Food" },
-    { id: "4", name: "Home Essentials", category: "Home & Garden" },
-    { id: "5", name: "Sports World", category: "Sports & Outdoors" },
-  ];
+  const storesStore = useStores((state) => state);
   const [open, setOpen] = useState(false);
-  const [selectedStore, setSelectedStore] = useState<Store>(stores[0]);
 
+  const { selectedStore, setSelectedStore } = storesStore;
+
+  const stores = q.data || [];
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -51,9 +41,15 @@ export default function StoreSwitcher({ className }: { className?: string }) {
           aria-expanded={open}
           className={cn("justify-between", className)}
         >
-          <Store className="mr-2 h-4 w-4" />
-          {selectedStore.name}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {selectedStore ? (
+            <>
+              <Store className="mr-2 h-4 w-4" />
+              {selectedStore.name}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </>
+          ) : (
+            "Select store"
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[250px] p-0">
@@ -75,7 +71,7 @@ export default function StoreSwitcher({ className }: { className?: string }) {
                   <Check
                     className={cn(
                       "ml-auto h-4 w-4",
-                      selectedStore.id === store.id
+                      selectedStore?.id === store.id
                         ? "opacity-100"
                         : "opacity-0"
                     )}

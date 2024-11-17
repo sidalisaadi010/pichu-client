@@ -1,9 +1,16 @@
 import { create } from "zustand";
 
-import { api } from "@/lib/api";
+// import { api } from "@/lib/api";
 
 import * as jose from "jose";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
+
+export const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true, // Important for cookies
+});
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,

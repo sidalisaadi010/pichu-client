@@ -1,7 +1,7 @@
 import React from "react";
 
-import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import { api } from "@/stores/user-store";
 
 async function getUserStores(): Promise<GetStoresResponse> {
   const res = await api.get("/stores");

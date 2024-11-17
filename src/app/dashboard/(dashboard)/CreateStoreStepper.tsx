@@ -26,7 +26,10 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api } from "@/stores/user-store";
+import { useCreateStoreStore } from "@/stores/create-store.store";
+import { useMutation } from "@tanstack/react-query";
+import { useCreateStore } from "@/hooks/mutations/create-store.mutation";
 
 const steps = [
   { label: "Store Details", description: "Set up your store information" },
@@ -62,15 +65,21 @@ const StoreDetailsSchema = z.object({
 
 function StoreDetailsForm() {
   // create a random color with a nice fitting random accent to use in pattren
+  const { setStoreName, setStoreDescription, store } = useCreateStoreStore();
 
   const { nextStep } = useStepper();
   const form = useForm<z.infer<typeof StoreDetailsSchema>>({
     resolver: zodResolver(StoreDetailsSchema),
-    defaultValues: { storeName: "", storeDescription: "" },
+    defaultValues: {
+      storeName: store.name,
+      storeDescription: store.description || "",
+    },
   });
 
   function onSubmit(data: z.infer<typeof StoreDetailsSchema>) {
     nextStep();
+    setStoreName(data.storeName);
+    setStoreDescription(data.storeDescription);
     toast({ title: "Store details saved!" });
   }
 
@@ -130,42 +139,40 @@ type ConfirmStoreSlugInput = z.infer<typeof confirmStoreSlugSchema>;
 
 function ConfirmStoreSlugForm() {
   const { nextStep } = useStepper();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { store } = useCreateStoreStore();
 
   const form = useForm<ConfirmStoreSlugInput>({
     resolver: zodResolver(confirmStoreSlugSchema),
     defaultValues: { storeSlug: "" },
   });
 
-  async function onSubmit(data: ConfirmStoreSlugInput) {
-    setIsSubmitting(true);
-    try {
-      // Check slug availability
-      const response = await api.get<{ available: boolean }>(
-        `/stores/check-slug/${data.storeSlug}`
-      );
-      if (!response.data.available) {
-        form.setError("storeSlug", {
-          message: `${data.storeSlug} is taken`,
-        });
-        return;
-      }
-
+  const {
+    isPending: isSubmitting,
+    mutate: createStore,
+    error,
+  } = useCreateStore({
+    onSuccess: () => {
       nextStep();
+      toast({ title: "Store slug saved!" });
+    },
+    onError: () => {
+      form.setError("storeSlug", {
+        message: `The slug "${form.getValues(
+          "storeSlug"
+        )}" is already taken. Please choose another one.`,
+      });
+    },
+  });
 
-      toast({
-        title: "Store slug confirmed!",
-        description: `Your store slug is: ${data.storeSlug}`,
+  async function onSubmit(data: ConfirmStoreSlugInput) {
+    try {
+      await createStore({
+        description: store.description,
+        name: store.name,
+        slug: data.storeSlug,
       });
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast({
-        title: "Error",
-        description: "There was a problem confirming your store slug.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+      toast({ title: "Error saving store slug" });
     }
   }
 
