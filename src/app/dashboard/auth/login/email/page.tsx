@@ -1,7 +1,7 @@
 "use client";
 
 import { api, useAuth } from "@/stores/user-store";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -18,7 +18,7 @@ export default function EmailLoginCallback({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const token = useParams().token;
+  const token = useSearchParams().get("token");
 
   async function authenticateEmail(token: string) {
     try {
