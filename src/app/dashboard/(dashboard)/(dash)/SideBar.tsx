@@ -32,6 +32,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import StoreSwitcher from "./StoreSwitcher";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 type MenuItem = {
   icon: React.ElementType;
@@ -44,7 +46,7 @@ const menuItems: MenuItem[] = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
-    href: "/dashboard",
+    href: "/main",
   },
   {
     icon: ShoppingCart,
@@ -90,7 +92,10 @@ const MenuItemComponent: React.FC<{ item: MenuItem; depth?: number }> = ({
   depth = 0,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const path = usePathname();
   const hasChildren = item.children && item.children.length > 0;
+
+  const isActive = item.href === path;
 
   return (
     <SidebarMenuItem>
@@ -103,16 +108,24 @@ const MenuItemComponent: React.FC<{ item: MenuItem; depth?: number }> = ({
         )}
         onClick={() => hasChildren && setIsOpen(!isOpen)}
       >
-        <Button variant="ghost" className="w-full justify-start">
-          <item.icon className="mr-2 h-4 w-4" />
-          {item.label}
-          {hasChildren &&
-            (isOpen ? (
-              <ChevronDown className="ml-auto h-4 w-4" />
-            ) : (
-              <ChevronRight className="ml-auto h-4 w-4" />
-            ))}
-        </Button>
+        <Link href={item.href || "#"}>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start ",
+              isActive ? "bg-green-50 text-green-900" : ""
+            )}
+          >
+            <item.icon className="mr-2 h-4 w-4" />
+            {item.label}
+            {hasChildren &&
+              (isOpen ? (
+                <ChevronDown className="ml-auto h-4 w-4" />
+              ) : (
+                <ChevronRight className="ml-auto h-4 w-4" />
+              ))}
+          </Button>
+        </Link>
       </SidebarMenuButton>
       {hasChildren && isOpen && (
         <SidebarMenu>
