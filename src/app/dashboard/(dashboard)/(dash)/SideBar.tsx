@@ -128,7 +128,7 @@ export default function DynamicSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <h2 className="text-xl font-bold">E-commerce Dashboard</h2>
+        <h2 className="text-xl font-bold text-center italic">Storesdz</h2>
         <StoreSwitcher />
       </SidebarHeader>
       <SidebarContent>

@@ -1,37 +1,57 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import DynamicSidebar from "./SideBar";
+"use client";
+import AuthWrapper from "@/providers/auth-refresh.provider";
+import QueryProvider from "@/providers/query.provider";
+import React from "react";
+import { Toaster } from "@/components/ui/toaster";
+import StoresProvider from "@/providers/store.provider";
+import { useAuth } from "@/stores/user-store";
+import Dashboardloading from "../dashboardloading";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
-import { Metadata } from "next";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Stores Dz - Dashboard",
-};
+type props = { children: React.ReactNode };
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function layout({ children }: props) {
+  return <App>{children}</App>;
+}
+
+function App({ children }: props) {
+  const { isLoading, user } = useAuth();
   return (
-    <SidebarProvider>
-      <div className="flex h-screen overflow-hidden w-full">
-        <DynamicSidebar />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between px-6 py-4 border-b">
-            <div className="flex items-center">
-              <SidebarTrigger>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Toggle sidebar</span>
-                </Button>
-              </SidebarTrigger>
-            </div>
-            <div>{/* Add user menu or other header content here */}</div>
-          </header>
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
-        </div>
-      </div>
-    </SidebarProvider>
+    <>
+      <QueryProvider>
+        {isLoading && !user ? (
+          <Dashboardloading />
+        ) : !isLoading && user ? (
+          <>
+            <StoresProvider initialStores={[]}>{children}</StoresProvider>
+            <Toaster />
+          </>
+        ) : (
+          <NotLoggedIn>{children}</NotLoggedIn>
+        )}
+      </QueryProvider>
+    </>
+  );
+}
+
+function NotLoggedIn({ children }: { children?: React.ReactNode }) {
+  const path = usePathname();
+  const isLoginPage = path === "/login";
+  const isPathStartsWithAuth = path.startsWith("/auth");
+
+  if (isLoginPage || isPathStartsWithAuth) {
+    return <>{children}</>;
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-bold text-red-600 mb-4">Not Logged In</h1>
+      <p className="text-lg mb-4">You must be logged in to access this page</p>
+      <Link href={"/login"}>
+        <Button>Return to Login</Button>
+      </Link>
+    </div>
   );
 }

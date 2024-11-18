@@ -14,7 +14,6 @@ export default function EmailLoginCallback({
     [key: string]: string;
   };
 }) {
-  const { setAccessToken, setUser } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -30,9 +29,10 @@ export default function EmailLoginCallback({
           token,
         }
       );
-      const user = jose.decodeJwt<User>(response.data.accessToken);
-      setAccessToken(response.data.accessToken);
-      setUser(user);
+      // if the response was successful redirect to /main
+      if (response.status === 200) {
+        window.location.href = "/main";
+      }
     } catch (err) {
       setError(
         err instanceof Error
