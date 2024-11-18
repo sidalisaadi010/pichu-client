@@ -18,7 +18,7 @@ export default function DashboardLayout({
       <div className="flex h-screen overflow-hidden w-full">
         <DynamicSidebar />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between px-6 py-4 border-b">
+          <header className="flex items-center justify-between lg:px-6 py-4 border-b">
             <div className="flex items-center">
               <SidebarTrigger>
                 <Button variant="ghost" size="icon">
@@ -29,7 +29,7 @@ export default function DashboardLayout({
             </div>
             <div>{/* Add user menu or other header content here */}</div>
           </header>
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto ">{children}</main>
         </div>
       </div>
     </SidebarProvider>

@@ -85,9 +85,9 @@ function StoreDetailsForm() {
 
   return (
     <Form {...form}>
-      <div className="h-72 w-full heropattern-topography-green-700"></div>
+      <div className="h-72 w-full heropattern-topography-green-700 "></div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-1">
         <FormField
           control={form.control}
           name="storeName"
@@ -178,7 +178,7 @@ function ConfirmStoreSlugForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-1">
         <FormField
           control={form.control}
           name="storeSlug"
@@ -226,7 +226,7 @@ function ProductInformationForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-1">
         <FormField
           control={form.control}
           name="productName"

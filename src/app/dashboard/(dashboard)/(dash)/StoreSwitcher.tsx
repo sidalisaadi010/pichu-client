@@ -22,6 +22,7 @@ import {
 import useGetStores from "@/hooks/queries/useGetStores";
 import CreateStoreDialog from "./CreateStoreDialog";
 import { useStores } from "@/providers/store.provider";
+import Link from "next/link";
 
 export default function StoreSwitcher({ className }: { className?: string }) {
   const q = useGetStores();
@@ -52,8 +53,8 @@ export default function StoreSwitcher({ className }: { className?: string }) {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[250px] p-0">
-        <Command>
+      <PopoverContent className="w-[250px] p-0 ">
+        <Command className="">
           <CommandInput placeholder="Search store..." />
           <CommandList>
             <CommandEmpty>No store found.</CommandEmpty>

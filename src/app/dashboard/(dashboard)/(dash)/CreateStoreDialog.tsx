@@ -16,7 +16,7 @@ export default function CreateStoreDialog({
 }) {
   return (
     <Dialog>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogTrigger className="z-60">{trigger}</DialogTrigger>
       <DialogContent>
         <CreateStoreStepper />
       </DialogContent>
